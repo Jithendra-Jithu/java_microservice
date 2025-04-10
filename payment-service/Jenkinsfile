@@ -1,31 +1,45 @@
 pipeline {
     agent any
-        tools {
-        maven 'maven' // Name used in Global Tool Configuration
+
+    tools {
+        maven 'maven'
     }
 
     stages {
-        stage('Build') {
+        stage('Checkout') {
             steps {
-                echo 'Building payment-service...'
-                sh 'mvn clean package'
+                checkout scm
             }
         }
 
-        stage('Docker Build & Push') {
+        stage('Build with Maven') {
             steps {
-                echo 'Building Docker Image'
-                sh 'docker build -t kpkm25/payment-service .'
-                withCredentials([usernamePassword(credentialsId: 'docker-creds', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-                    sh 'echo $PASSWORD | docker login -u $USERNAME --password-stdin'
-                    sh 'docker push kpkm25/payment-service'
+                dir('payment-service') {
+                    sh 'mvn clean package'
+                }
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                dir('payment-service') {
+                    sh "docker build -t kpkm25/payment-service ."
+                }
+            }
+        }
+
+        stage('Push Docker Image') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'docker-creds', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                    sh "echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin"
+                    sh "docker push kpkm25/payment-service"
                 }
             }
         }
 
         stage('Deploy to Kubernetes') {
             steps {
-                echo 'Deploying...'
+                echo "Kubernetes deployment for payment-service will go here."
                 sh 'kubectl apply -f k8s/payment-deployment.yaml'
             }
         }
