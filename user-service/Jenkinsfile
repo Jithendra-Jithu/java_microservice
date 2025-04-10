@@ -8,9 +8,12 @@ pipeline {
 stage('Build') {
     steps {
         echo 'Building user-service...'
-        sh 'mvn clean package'
+        dir('user-service') {
+            sh 'mvn clean package'
+        }
     }
 }
+
 
 
         stage('Docker Build & Push') {
