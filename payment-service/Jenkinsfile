@@ -1,14 +1,12 @@
 pipeline {
     agent any
-        tools {
-        maven 'maven' // Name used in Global Tool Configuration
-    }
-
     stages {
         stage('Build') {
             steps {
-                echo 'Building payment-service...'
-                sh 'mvn clean package'
+                echo 'Building user-service...'
+                dir('user-service') {
+                    sh 'mvn clean package'
+                }
             }
         }
 
