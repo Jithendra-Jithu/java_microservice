@@ -5,18 +5,13 @@ pipeline {
     }
 
     stages {
-                stage('Check Maven') {
-            steps {
-                sh 'which mvn'
-                sh 'mvn -v'
-            }
-        }
-        stage('Build') {
-            steps {
-                echo 'Building user-service...'
-                sh './mvn clean package'
-            }
-        }
+stage('Build') {
+    steps {
+        echo 'Building user-service...'
+        sh 'mvn clean package'
+    }
+}
+
 
         stage('Docker Build & Push') {
             steps {
