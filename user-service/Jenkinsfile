@@ -20,10 +20,10 @@ stage('Build') {
             steps {
                 echo 'Building Docker Image'
                 dir('user-service') {
-                sh 'docker build -t kpkm25/user-service .'
-                withCredentials([usernamePassword(credentialsId: 'docker-creds', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+                sh 'docker build -t jithu145/user-service .'
+                withCredentials([usernamePassword(credentialsId: 'fb16b1ba-d2e9-41bb-8654-d00d3b5b61e6', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
                     sh 'echo $PASSWORD | docker login -u $USERNAME --password-stdin'
-                    sh 'docker push kpkm25/user-service'
+                    sh 'docker push jithu145/user-service'
                 }
                 }
             }
