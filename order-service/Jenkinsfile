@@ -1,0 +1,30 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Build') {
+            steps {
+                echo 'Building order-service...'
+                sh './mvn clean package'
+            }
+        }
+
+        stage('Docker Build & Push') {
+            steps {
+                echo 'Building Docker Image'
+                sh 'docker build -t kpkm25/order-service .'
+                withCredentials([usernamePassword(credentialsId: 'docker-creds', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+                    sh 'echo $PASSWORD | docker login -u $USERNAME --password-stdin'
+                    sh 'docker push kpkm25/order-service'
+                }
+            }
+        }
+
+        stage('Deploy to Kubernetes') {
+            steps {
+                echo 'Deploying...'
+                sh 'kubectl apply -f k8s/order-deployment.yaml'
+            }
+        }
+    }
+}
