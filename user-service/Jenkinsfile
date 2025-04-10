@@ -31,9 +31,14 @@ stage('Build') {
 
         stage('Deploy to Kubernetes') {
             steps {
-                echo 'Deploying...'
-                sh 'kubectl apply -f k8s/user-deployment.yaml'
+                withCredentials([file(credentialsId: 'kube-trial', variable: 'KUBECONFIG_FILE')]) {
+                    sh '''
+                        export KUBECONFIG=$KUBECONFIG_FILE
+                        kubectl apply -f k8s/user-deployment.yaml
+                    '''
+                }
             }
-        }
+        
     }
 }
+

@@ -35,13 +35,16 @@ pipeline {
                     sh "docker push kpkm25/order-service"
                 }
             }
-        }
-
         stage('Deploy to Kubernetes') {
             steps {
-                echo "Kubernetes deployment for order-service will go here."
-                sh 'kubectl apply -f k8s/order-deployment.yaml'
+                withCredentials([file(credentialsId: 'kube-trial', variable: 'KUBECONFIG_FILE')]) {
+                    sh '''
+                        export KUBECONFIG=$KUBECONFIG_FILE
+                        kubectl apply -f k8s/order-deployment.yaml
+                    '''
+                }
             }
-        }
+        
+    }
     }
 }
