@@ -42,11 +42,10 @@ pipeline {
                 withCredentials([file(credentialsId: 'kube-trial', variable: 'KUBECONFIG_FILE')]) {
                     sh '''
                         export KUBECONFIG=$KUBECONFIG_FILE
-                        kubectl apply -f k8s/payment-deployment.yaml
+                        kubectl apply -f k8s/payment-deployment.yml
                     '''
                 }
             }
-        
-    }
+        }
     }
 }

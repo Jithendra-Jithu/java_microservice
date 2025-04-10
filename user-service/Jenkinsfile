@@ -1,30 +1,35 @@
 pipeline {
     agent any
-        tools {
+
+    tools {
         maven 'maven'
     }
 
     stages {
-stage('Build') {
-    steps {
-        echo 'Building user-service...'
-        dir('user-service') {
-            sh 'mvn clean package'
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
         }
-    }
-}
 
-
+        stage('Build') {
+            steps {
+                echo 'Building user-service...'
+                dir('user-service') {
+                    sh 'mvn clean package'
+                }
+            }
+        }
 
         stage('Docker Build & Push') {
             steps {
                 echo 'Building Docker Image'
                 dir('user-service') {
-                sh 'docker build -t kpkm25/user-service .'
-                withCredentials([usernamePassword(credentialsId: 'docker-creds', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-                    sh 'echo $PASSWORD | docker login -u $USERNAME --password-stdin'
-                    sh 'docker push kpkm25/user-service'
-                }
+                    sh 'docker build -t kpkm25/user-service .'
+                    withCredentials([usernamePassword(credentialsId: 'docker-creds', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+                        sh 'echo $PASSWORD | docker login -u $USERNAME --password-stdin'
+                        sh 'docker push kpkm25/user-service'
+                    }
                 }
             }
         }
@@ -34,11 +39,10 @@ stage('Build') {
                 withCredentials([file(credentialsId: 'kube-trial', variable: 'KUBECONFIG_FILE')]) {
                     sh '''
                         export KUBECONFIG=$KUBECONFIG_FILE
-                        kubectl apply -f k8s/user-deployment.yaml
+                        kubectl apply -f k8s/user-deployment.yml
                     '''
                 }
             }
-        
+        }
     }
 }
-
